@@ -1,4 +1,7 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE
+   OverloadedStrings
+ , GeneralizedNewtypeDeriving 
+  #-}
 module Views.Home (homeView,layout) where
 
 import           Data.Monoid                 (mempty)
@@ -14,9 +17,12 @@ import           Text.Blaze.Html5            (Html, a, body, button,
 import           Text.Blaze.Html5.Attributes (charset, class_, content, href,
                                               httpEquiv, id, media, name,
                                               placeholder, rel, src, type_)
-import           Views.Utils 
-import           Web.Scotty                  (ActionM)
+import           Views.Utils
+import           Web.Scotty                  (ActionM, Parsable)
 
+
+newtype Metric = Metric { metric_id :: String }
+    deriving (Parsable, Show)
 
 layout :: Html -> Html -> Html
 layout t b = docTypeHtml $ do
@@ -36,26 +42,21 @@ layout t b = docTypeHtml $ do
            body $ do
              navBar >> b
 
-
-metricID :: String
-metricID = "BENHUR~20xeHun0lP6"
-
 metricTitle :: String
 metricTitle = "SineWave"
 
-gon :: String
-gon = "\n//<![CDATA[\nwindow.gon={}; gon.metric={};\
+gon :: String -> String
+gon m  = "\n//<![CDATA[\nwindow.gon={}; gon.metric={};\
             \gon.message='Hachiavelli is awesome.'; \
             \gon.metric.title='"++metricTitle++"'; \
-            \gon.metric.id='"++metricID++"'; \n\
+            \gon.metric.id='"++m++"'; \n\
             \//]]>"
 
+include_gon m = script $ (string (gon $ metric_id(m)))
 
-include_gon = script $ (string gon)
-
-homeView :: ActionM()
-homeView = blaze $ layout "home" $ do
-             include_gon
+homeView :: Metric -> ActionM()
+homeView m = blaze $ layout "home" $ do
+             include_gon m 
              div ! class_ "container" $ do
                h1 "Hachiavelli"
                div ! id "message" $ mempty
