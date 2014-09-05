@@ -9,7 +9,7 @@ var context = cubism.context()
 datum = [];
 
 machiavelli = context.machiavelli("http://localhost:3000");
-datum.push(machiavelli.metric("BENHUR~20xeHun0lP6","SineWave"));
+datum.push(machiavelli.metric(gon.metric.id,gon.metric.title));
 										   
 d3.select("#horizon_graph").call(function(div) {                                   
 	div.append("div")                                                          

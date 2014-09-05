@@ -1,10 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
-
 module Views.Home (homeView,layout) where
 
 import           Data.Monoid                 (mempty)
 import           Data.Text.Lazy              (toStrict)
 import           Prelude                     hiding (div, head, id)
+import           Text.Blaze.Internal         (string)
 import           Text.Blaze.Html             (Html, toHtml)
 import           Text.Blaze.Html5            (Html, a, body, button,
                                               dataAttribute, div, docTypeHtml,
@@ -14,8 +14,9 @@ import           Text.Blaze.Html5            (Html, a, body, button,
 import           Text.Blaze.Html5.Attributes (charset, class_, content, href,
                                               httpEquiv, id, media, name,
                                               placeholder, rel, src, type_)
-import           Views.Utils                 (blaze, pet)
+import           Views.Utils 
 import           Web.Scotty                  (ActionM)
+
 
 layout :: Html -> Html -> Html
 layout t b = docTypeHtml $ do
@@ -29,16 +30,35 @@ layout t b = docTypeHtml $ do
              meta ! httpEquiv "X-UA-Compatible" ! content "IE=edge,chrome=1"
              meta ! name "description" ! content "Inspire Text"
              meta ! name "viewport" ! content "width=device-width"
+             script ! src "//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" $ mempty
+             script ! src "//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js" $ mempty
              link ! href "//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" ! rel  "stylesheet" ! media "screen"
            body $ do
              navBar >> b
-             script ! src "//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" $ mempty
-             script ! src "//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js" $ mempty
 
-homeView :: ActionM ()
+
+metricID :: String
+metricID = "BENHUR~20xeHun0lP6"
+
+metricTitle :: String
+metricTitle = "SineWave"
+
+gon :: String
+gon = "\n//<![CDATA[\nwindow.gon={}; gon.metric={};\
+            \gon.message='Hachiavelli is awesome.'; \
+            \gon.metric.title='"++metricTitle++"'; \
+            \gon.metric.id='"++metricID++"'; \n\
+            \//]]>"
+
+
+include_gon = script $ (string gon)
+
+homeView :: ActionM()
 homeView = blaze $ layout "home" $ do
+             include_gon
              div ! class_ "container" $ do
                h1 "Hachiavelli"
+               div ! id "message" $ mempty
                div ! class_ "col-md-12" $ do
                  script ! src "javascript/d3.v3.js" $ mempty
                  script ! src "javascript/cubism.v1.js" $ mempty
@@ -46,6 +66,7 @@ homeView = blaze $ layout "home" $ do
                  link ! href "stylesheets/horizon.css" ! rel "stylesheet"
                  div ! id "horizon_graph" $ mempty
                  script ! src "javascript/graph.js" $ mempty
+               script $ "jQuery('#message')[0].innerHTML = gon.message"
 
 
 navBar :: Html
